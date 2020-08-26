@@ -1,1 +1,126 @@
 
+from selenium import webdriver
+from selenium.webdriver.common.keys import Keys
+from selenium.webdriver.common.by import By
+from selenium.webdriver.chrome.options import Options
+import os
+import datetime
+import time
+import threading
+import ntplib
+
+
+
+
+
+def synclock():
+    
+    global mytime
+    c = ntplib.NTPClient()
+    while 1 :
+        try :  
+           mytime = datetime.datetime.strptime(time.ctime(c.request("ir.pool.ntp.org" , version=3).tx_time) , "%a %b %d %H:%M:%S %Y")
+           time.sleep(.5)
+        except :
+            print("Get time Error ")
+            
+
+driver  = webdriver.Chrome(executable_path="chromedriver.exe")
+driver.get('https://onlineplus.mofidonline.com/Account/Login')
+elem = driver.find_element_by_name("username")
+elem.send_keys(4220197631)
+elem = driver.find_element_by_name("password")
+elem.send_keys("Bssbsx123")
+
+
+prc = "55,000,000"
+mb = int(str.replace(prc,",","",-1))
+mb = mb -  int(mb * .4 // 100)
+pr = 14390
+td = int(mb // pr)
+th = 0
+tm = 0
+nemad = "row_{}".format("IRO1TSAN0001")
+mytime = None
+print(nemad)
+def init():
+
+ while 1:
+  global td
+  global pr
+  global th
+  global tm
+  global mytime
+
+  res = input("command : ")
+  if res=="set" :
+      driver.find_elements_by_class_name("page-index")[1].click()
+  if res=="clear":
+      clear()
+  if res=="clk":
+      t = threading.Thread(target=synclock)
+      t.start()
+  if res=="c":
+      try:
+       driver.find_element_by_id("liWatchlistTab").click()
+       driver.find_element_by_id(nemad).click()
+      except:
+          print("Nemad Error")
+  if res=="cls":
+     driver.refresh()
+  if res=="n":
+    th = int(input("saat : "))
+    tm = int(input("min : "))
+    
+  if res=="go":
+      buy_()
+
+tmp_sec = -1
+
+
+def send_(sec_):
+    global tmp_sec
+    if tmp_sec != sec_ :
+         time.sleep(.9)
+         try: 
+             driver.find_element_by_id("send_order_btnSendOrder").click()
+         except:
+             print("Send Error")
+         print("ersal Shod : {}".format(sec_))
+    tmp_sec = sec_
+
+
+    
+
+def buy_():
+     
+      while True : 
+            if mytime.hour ==int(th) and mytime.minute==int(tm)-1 :
+                 if  mytime.second == 50 :
+                        driver.find_element_by_id("send_order_txtCount").send_keys(15)
+                        driver.find_element_by_id("send_order_txtPrice").send_keys(int(pr))
+                        driver.find_element_by_id("send_order_btnSendOrder").click()
+                        time.sleep(1)
+                        elem = driver.find_element_by_id("send_order_txtCount")
+                        elem.clear()
+                        elem.send_keys(td)
+                 if  mytime.minute==int(tm)-1 and mytime.second >= 58 :
+                        sec_ = mytime.second
+                        send_(sec_)
+                        
+            if  mytime.minute==int(tm):
+                    sec_ = mytime.second
+                    send_(sec_)
+            if  mytime.minute==int(tm) and mytime.second==1:
+                    sec_ = mytime.second
+                    send_(sec_)
+                    init()
+                
+            
+            
+
+                 
+init()
+  
+
+
