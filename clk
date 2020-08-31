@@ -1,0 +1,73 @@
+import pyautogui
+import os
+import datetime
+import time
+import threading
+import ntplib
+
+
+
+
+
+def synclock():
+    
+    global mytime
+    c = ntplib.NTPClient()
+    while 1 :
+        try :  
+           time.sleep(.5)
+           mytime = datetime.datetime.strptime(time.ctime(c.request("time.day.ir" , version=3).tx_time) , "%a %b %d %H:%M:%S %Y")
+           print(mytime.second)
+        except :
+           print("err")
+
+while True:
+    global x
+    global y
+    global th
+    global tm
+
+    res = input("commnad :")
+    if( res=="s"):
+        (x,y) = pyautogui.position()
+        print(x,y)
+
+    # run timer
+    if( res=="clk"):
+        t = threading.Thread(target=synclock)
+        t.start()
+        print("timer is on")
+
+    # set time 
+    if res=="n":
+        th = int(input("saat : "))
+        tm = int(input("min : "))
+        print("time is set")
+
+    # run clicker
+    if (res =="c"):
+        while True : 
+            if datetime.datetime.now().hour ==int(th) and datetime.datetime.now().minute==int(tm)-1 :
+                if  datetime.datetime.now().second == 50 :
+                    pyautogui.click(x,y)
+                    time.sleep(1)
+                if  datetime.datetime.now().second ==59 :
+                    pyautogui.click(x,y)
+                    time.sleep(.3)
+            if  datetime.datetime.now().minute==int(tm) and datetime.datetime.now().second==0:
+                    pyautogui.click(x,y)
+                    time.sleep(.3)
+            if  datetime.datetime.now().minute==int(tm) and datetime.datetime.now().second==1:
+                    pyautogui.click(x,y)
+                    time.sleep(.3)
+                    break
+                    
+
+                
+                
+
+
+
+
+
+
